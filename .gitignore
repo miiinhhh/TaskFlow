@@ -1,0 +1,26 @@
+## Build
+bin/
+obj/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+
+## VS Code
+.vscode/
+
+## NuGet
+*.nupkg
+*.snupkg
+
+## Test
+TestResults/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Secrets
+.env
+appsettings.Local.json
