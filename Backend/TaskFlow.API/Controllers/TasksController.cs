@@ -9,6 +9,13 @@ namespace TaskFlow.API.Controllers;
 [Produces("application/json")]
 public sealed class TasksController(ITaskService taskService) : ControllerBase
 {
+    [HttpGet("test-error")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public IActionResult TestError()
+    {
+        throw new Exception("Test exception");
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(TaskResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,4 +1,5 @@
 using TaskFlow.Infrastructure;
+using TaskFlow.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapOpenApi();
 app.UseSwagger();
