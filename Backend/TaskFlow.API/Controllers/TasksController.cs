@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Tasks;
 
 namespace TaskFlow.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/tasks")]
 [Produces("application/json")]
 public sealed class TasksController(ITaskService taskService) : ControllerBase
@@ -30,7 +33,11 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
 
         try
         {
-            var createdTask = await taskService.CreateAsync(request, cancellationToken);
+            var createdTask = await taskService.CreateAsync(request, CurrentUserId, IsAdmin, cancellationToken);
+            if (createdTask is null)
+            {
+                return Forbid();
+            }
             return CreatedAtAction(nameof(GetById), new { id = createdTask.Id }, createdTask);
         }
         catch (DbUpdateException)
@@ -43,7 +50,7 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<TaskResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TaskResponse>>> GetAll(CancellationToken cancellationToken)
     {
-        var taskList = await taskService.GetAllAsync(cancellationToken);
+        var taskList = await taskService.GetAllAsync(CurrentUserId, IsAdmin, cancellationToken);
         return Ok(taskList);
     }
 
@@ -52,7 +59,7 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TaskResponse>> GetById(int id, CancellationToken cancellationToken)
     {
-        var task = await taskService.GetByIdAsync(id, cancellationToken);
+        var task = await taskService.GetByIdAsync(id, CurrentUserId, IsAdmin, cancellationToken);
         return task is null ? NotFound() : Ok(task);
     }
 
@@ -72,7 +79,7 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
 
         try
         {
-            var updatedTask = await taskService.UpdateAsync(id, request, cancellationToken);
+            var updatedTask = await taskService.UpdateAsync(id, request, CurrentUserId, IsAdmin, cancellationToken);
             return updatedTask is null ? NotFound() : Ok(updatedTask);
         }
         catch (DbUpdateException)
@@ -86,7 +93,10 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        var deleted = await taskService.DeleteAsync(id, cancellationToken);
+        var deleted = await taskService.DeleteAsync(id, CurrentUserId, IsAdmin, cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
+
+    private int CurrentUserId => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
+    private bool IsAdmin => User.IsInRole("Admin");
 }

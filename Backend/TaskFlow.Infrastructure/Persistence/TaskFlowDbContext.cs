@@ -9,6 +9,8 @@ public sealed class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> option
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+    public DbSet<TaskAssignment> TaskAssignments => Set<TaskAssignment>();
     public DbSet<TaskFlow.Domain.Entities.TaskStatus> TaskStatuses => Set<TaskFlow.Domain.Entities.TaskStatus>();
     public DbSet<TaskPriority> TaskPriorities => Set<TaskPriority>();
 
@@ -19,6 +21,25 @@ public sealed class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> option
             entity.ToTable("Projects");
             entity.Property(e => e.Name).HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(1000);
+
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(e => e.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ProjectMember>(entity =>
+        {
+            entity.ToTable("ProjectMembers");
+            entity.HasKey(e => new { e.ProjectId, e.UserId });
+            entity.HasOne(e => e.Project)
+                .WithMany()
+                .HasForeignKey(e => e.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -82,6 +103,24 @@ public sealed class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> option
             entity.HasOne(e => e.Priority)
                 .WithMany()
                 .HasForeignKey(e => e.PriorityId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<TaskAssignment>(entity =>
+        {
+            entity.ToTable("TaskAssignments");
+            entity.HasKey(e => new { e.TaskId, e.UserId });
+            entity.HasOne(e => e.Task)
+                .WithMany()
+                .HasForeignKey(e => e.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.AssignedBy)
+                .WithMany()
+                .HasForeignKey(e => e.AssignedById)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

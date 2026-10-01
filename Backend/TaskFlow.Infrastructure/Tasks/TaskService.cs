@@ -7,12 +7,17 @@ namespace TaskFlow.Infrastructure.Tasks;
 
 public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
 {
-    public async Task<TaskResponse> CreateAsync(CreateTaskRequest request, CancellationToken cancellationToken = default)
+    public async Task<TaskResponse?> CreateAsync(CreateTaskRequest request, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
+        if (!isAdmin && !await CanManageProjectAsync(request.ProjectId, currentUserId, cancellationToken))
+        {
+            return null;
+        }
+
         var task = new TaskItem
         {
             ProjectId = request.ProjectId,
-            CreatedById = request.CreatedById,
+            CreatedById = currentUserId,
             StatusId = request.StatusId,
             PriorityId = request.PriorityId,
             Title = request.Title.Trim(),
@@ -31,25 +36,38 @@ public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
             .SingleAsync(t => t.Id == task.Id, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TaskResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<TaskResponse>> GetAllAsync(int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
-        return await ProjectTask()
+        var query = ProjectTask();
+        if (!isAdmin)
+        {
+            query = query.Where(t => dbContext.Projects.Any(p => p.Id == t.ProjectId && p.OwnerId == currentUserId)
+                || dbContext.TaskAssignments.Any(a => a.TaskId == t.Id && a.UserId == currentUserId));
+        }
+
+        return await query
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 
-    public Task<TaskResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public Task<TaskResponse?> GetByIdAsync(int id, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
         return ProjectTask()
-            .SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
+            .Where(t => t.Id == id && (isAdmin
+                || dbContext.Projects.Any(p => p.Id == t.ProjectId && p.OwnerId == currentUserId)
+                || dbContext.TaskAssignments.Any(a => a.TaskId == t.Id && a.UserId == currentUserId)))
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<TaskResponse?> UpdateAsync(int id, UpdateTaskRequest request, CancellationToken cancellationToken = default)
+    public async Task<TaskResponse?> UpdateAsync(int id, UpdateTaskRequest request, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
         var task = await dbContext.Tasks
             .SingleOrDefaultAsync(t => t.Id == id && !t.IsDeleted, cancellationToken);
 
-        if (task is null)
+        if (task is null
+            || (!isAdmin && !await CanManageTaskAsync(task, currentUserId, cancellationToken))
+            || (!isAdmin && request.ProjectId != task.ProjectId)
+            || (isAdmin && !await ProjectExistsAsync(request.ProjectId, cancellationToken)))
         {
             return null;
         }
@@ -72,12 +90,12 @@ public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
             .SingleAsync(t => t.Id == id, cancellationToken);
     }
 
-    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(int id, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
         var task = await dbContext.Tasks
             .SingleOrDefaultAsync(t => t.Id == id && !t.IsDeleted, cancellationToken);
 
-        if (task is null)
+        if (task is null || (!isAdmin && !await CanManageTaskAsync(task, currentUserId, cancellationToken)))
         {
             return false;
         }
@@ -87,6 +105,22 @@ public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    private async Task<bool> CanManageTaskAsync(TaskItem task, int currentUserId, CancellationToken cancellationToken)
+    {
+        return await dbContext.Projects.AnyAsync(p => p.Id == task.ProjectId && p.OwnerId == currentUserId, cancellationToken)
+            || await dbContext.TaskAssignments.AnyAsync(a => a.TaskId == task.Id && a.UserId == currentUserId, cancellationToken);
+    }
+
+    private Task<bool> CanManageProjectAsync(int projectId, int currentUserId, CancellationToken cancellationToken)
+    {
+        return dbContext.Projects.AnyAsync(p => p.Id == projectId && !p.IsArchived && p.OwnerId == currentUserId, cancellationToken);
+    }
+
+    private Task<bool> ProjectExistsAsync(int projectId, CancellationToken cancellationToken)
+    {
+        return dbContext.Projects.AnyAsync(p => p.Id == projectId && !p.IsArchived, cancellationToken);
     }
 
     private IQueryable<TaskResponse> ProjectTask()
