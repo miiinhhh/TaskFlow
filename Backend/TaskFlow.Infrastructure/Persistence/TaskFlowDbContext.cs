@@ -14,6 +14,9 @@ public sealed class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> option
     public DbSet<TaskFlow.Domain.Entities.TaskStatus> TaskStatuses => Set<TaskFlow.Domain.Entities.TaskStatus>();
     public DbSet<TaskPriority> TaskPriorities => Set<TaskPriority>();
 
+    public DbSet<TaskComment> TaskComments => Set<TaskComment>();
+    public DbSet<TaskHistory> TaskHistories => Set<TaskHistory>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Project>(entity =>
@@ -76,6 +79,37 @@ public sealed class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> option
             entity.ToTable("TaskPriorities");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Description).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<TaskComment>(entity =>
+        {
+            entity.ToTable("TaskComments");
+
+            entity.HasOne(e => e.Task)
+                .WithMany()
+                .HasForeignKey(e => e.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<TaskHistory>(entity =>
+        {
+            entity.ToTable("TaskHistories");
+            entity.Property(e => e.Action).HasMaxLength(100);
+
+            entity.HasOne(e => e.Task)
+                .WithMany()
+                .HasForeignKey(e => e.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<TaskItem>(entity =>
