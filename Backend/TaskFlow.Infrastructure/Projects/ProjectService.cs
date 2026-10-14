@@ -30,24 +30,19 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
         });
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await ProjectQuery().SingleAsync(p => p.Id == project.Id, cancellationToken);
+        return await ProjectQuery(projectId: project.Id).SingleAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<ProjectResponse>> GetAllAsync(int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
-        var query = ProjectQuery();
-        if (!isAdmin)
-        {
-            query = query.Where(p => dbContext.ProjectMembers.Any(m => m.ProjectId == p.Id && m.UserId == currentUserId));
-        }
-
-        return await query.OrderByDescending(p => p.CreatedAt).ToListAsync(cancellationToken);
+        return await ProjectQuery(currentUserId, isAdmin)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync(cancellationToken);
     }
 
     public Task<ProjectResponse?> GetByIdAsync(int projectId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
-        return ProjectQuery()
-            .Where(p => p.Id == projectId && (isAdmin || dbContext.ProjectMembers.Any(m => m.ProjectId == projectId && m.UserId == currentUserId)))
+        return ProjectQuery(currentUserId, isAdmin, projectId)
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -67,7 +62,7 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
         project.UpdatedAt = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await ProjectQuery().SingleAsync(p => p.Id == projectId, cancellationToken);
+        return await ProjectQuery(projectId: projectId).SingleAsync(cancellationToken);
     }
 
     public async Task<bool> DeleteAsync(int projectId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
@@ -193,12 +188,27 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
             && await dbContext.TaskAssignments.AnyAsync(a => a.TaskId == taskId && a.UserId == userId, cancellationToken);
     }
 
-    private IQueryable<ProjectResponse> ProjectQuery()
+    private IQueryable<ProjectResponse> ProjectQuery(
+        int? currentUserId = null,
+        bool isAdmin = true,
+        int? projectId = null)
     {
-        return dbContext.Projects
+        var query = dbContext.Projects
             .AsNoTracking()
-            .Where(p => !p.IsArchived)
-            .Select(p => new ProjectResponse(
+            .Where(p => !p.IsArchived);
+
+        if (projectId.HasValue)
+        {
+            query = query.Where(p => p.Id == projectId.Value);
+        }
+
+        if (!isAdmin && currentUserId.HasValue)
+        {
+            query = query.Where(p => dbContext.ProjectMembers
+                .Any(m => m.ProjectId == p.Id && m.UserId == currentUserId.Value));
+        }
+
+        return query.Select(p => new ProjectResponse(
                 p.Id,
                 p.OwnerId,
                 dbContext.Users.Where(u => u.Id == p.OwnerId).Select(u => u.FullName).SingleOrDefault(),
