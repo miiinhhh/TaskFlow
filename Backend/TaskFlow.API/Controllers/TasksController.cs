@@ -26,9 +26,18 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
         [FromBody] CreateTaskRequest request,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Title))
+        if (CurrentUserId <= 0)
         {
-            return BadRequest("Title is required.");
+            return Unauthorized();
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Title)
+            || request.Title.Length > 200
+            || request.EstimatedHours is < 0
+            || request.ActualHours is < 0
+            || (request.StartDate.HasValue && request.DueDate.HasValue && request.DueDate < request.StartDate))
+        {
+            return BadRequest("Title is required and valid. Hours cannot be negative, and due date must not precede start date.");
         }
 
         try
@@ -40,9 +49,13 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
             }
             return CreatedAtAction(nameof(GetById), new { id = createdTask.Id }, createdTask);
         }
+        catch (TaskValidationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
         catch (DbUpdateException)
         {
-            return BadRequest("Project, creator, status, or priority does not exist.");
+            return BadRequest("The task references a project, status, or priority that does not exist.");
         }
     }
 
@@ -72,9 +85,18 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
         [FromBody] UpdateTaskRequest request,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Title))
+        if (CurrentUserId <= 0)
         {
-            return BadRequest("Title is required.");
+            return Unauthorized();
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Title)
+            || request.Title.Length > 200
+            || request.EstimatedHours is < 0
+            || request.ActualHours is < 0
+            || (request.StartDate.HasValue && request.DueDate.HasValue && request.DueDate < request.StartDate))
+        {
+            return BadRequest("Title is required and valid. Hours cannot be negative, and due date must not precede start date.");
         }
 
         try
@@ -82,9 +104,13 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
             var updatedTask = await taskService.UpdateAsync(id, request, CurrentUserId, IsAdmin, cancellationToken);
             return updatedTask is null ? NotFound() : Ok(updatedTask);
         }
+        catch (TaskValidationException exception)
+        {
+            return BadRequest(exception.Message);
+        }
         catch (DbUpdateException)
         {
-            return BadRequest("Project, status, or priority does not exist.");
+            return BadRequest("The task references a project, status, or priority that does not exist.");
         }
     }
 

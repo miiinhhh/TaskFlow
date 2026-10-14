@@ -30,19 +30,56 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
         });
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await ProjectQuery(projectId: project.Id).SingleAsync(cancellationToken);
+        return await ProjectEntityQuery(projectId: project.Id)
+            .Select(p => new ProjectResponse(
+                p.Id,
+                p.OwnerId,
+                dbContext.Users.Where(u => u.Id == p.OwnerId).Select(u => u.FullName).SingleOrDefault(),
+                p.Name,
+                p.Description,
+                p.StartDate,
+                p.EndDate,
+                p.IsArchived,
+                p.CreatedAt,
+                p.UpdatedAt,
+                dbContext.ProjectMembers.Count(m => m.ProjectId == p.Id)))
+            .SingleAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<ProjectResponse>> GetAllAsync(int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
-        return await ProjectQuery(currentUserId, isAdmin)
+        return await ProjectEntityQuery(currentUserId, isAdmin)
             .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new ProjectResponse(
+                p.Id,
+                p.OwnerId,
+                dbContext.Users.Where(u => u.Id == p.OwnerId).Select(u => u.FullName).SingleOrDefault(),
+                p.Name,
+                p.Description,
+                p.StartDate,
+                p.EndDate,
+                p.IsArchived,
+                p.CreatedAt,
+                p.UpdatedAt,
+                dbContext.ProjectMembers.Count(m => m.ProjectId == p.Id)))
             .ToListAsync(cancellationToken);
     }
 
-    public Task<ProjectResponse?> GetByIdAsync(int projectId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
+    public async Task<ProjectResponse?> GetByIdAsync(int projectId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
-        return ProjectQuery(currentUserId, isAdmin, projectId)
+        return await ProjectEntityQuery(currentUserId, isAdmin, projectId)
+            .Select(p => new ProjectResponse(
+                p.Id,
+                p.OwnerId,
+                dbContext.Users.Where(u => u.Id == p.OwnerId).Select(u => u.FullName).SingleOrDefault(),
+                p.Name,
+                p.Description,
+                p.StartDate,
+                p.EndDate,
+                p.IsArchived,
+                p.CreatedAt,
+                p.UpdatedAt,
+                dbContext.ProjectMembers.Count(m => m.ProjectId == p.Id)))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -62,7 +99,20 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
         project.UpdatedAt = DateTime.UtcNow;
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await ProjectQuery(projectId: projectId).SingleAsync(cancellationToken);
+        return await ProjectEntityQuery(projectId: projectId)
+            .Select(p => new ProjectResponse(
+                p.Id,
+                p.OwnerId,
+                dbContext.Users.Where(u => u.Id == p.OwnerId).Select(u => u.FullName).SingleOrDefault(),
+                p.Name,
+                p.Description,
+                p.StartDate,
+                p.EndDate,
+                p.IsArchived,
+                p.CreatedAt,
+                p.UpdatedAt,
+                dbContext.ProjectMembers.Count(m => m.ProjectId == p.Id)))
+            .SingleAsync(cancellationToken);
     }
 
     public async Task<bool> DeleteAsync(int projectId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
@@ -188,7 +238,7 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
             && await dbContext.TaskAssignments.AnyAsync(a => a.TaskId == taskId && a.UserId == userId, cancellationToken);
     }
 
-    private IQueryable<ProjectResponse> ProjectQuery(
+    private IQueryable<Project> ProjectEntityQuery(
         int? currentUserId = null,
         bool isAdmin = true,
         int? projectId = null)
@@ -208,18 +258,7 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
                 .Any(m => m.ProjectId == p.Id && m.UserId == currentUserId.Value));
         }
 
-        return query.Select(p => new ProjectResponse(
-                p.Id,
-                p.OwnerId,
-                dbContext.Users.Where(u => u.Id == p.OwnerId).Select(u => u.FullName).SingleOrDefault(),
-                p.Name,
-                p.Description,
-                p.StartDate,
-                p.EndDate,
-                p.IsArchived,
-                p.CreatedAt,
-                p.UpdatedAt,
-                dbContext.ProjectMembers.Count(m => m.ProjectId == p.Id)));
+        return query;
     }
 
     private Task<Project?> GetManagedProjectAsync(int projectId, int currentUserId, bool isAdmin, CancellationToken cancellationToken)
