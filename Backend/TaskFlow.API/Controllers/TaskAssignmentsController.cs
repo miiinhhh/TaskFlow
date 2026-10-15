@@ -26,6 +26,18 @@ public sealed class TaskAssignmentsController(IProjectService projectService) : 
             : Ok(assignment);
     }
 
+    [HttpDelete("{taskId:int}/assignment")]
+    [Authorize(Roles = "Admin,Manager")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Unassign(int taskId, CancellationToken cancellationToken)
+    {
+        var removed = await projectService.UnassignTaskAsync(
+            taskId, CurrentUserId, IsAdmin, cancellationToken);
+
+        return removed ? NoContent() : NotFound();
+    }
+
     [HttpGet("{taskId:int}/assignment/{userId:int}")]
     public async Task<IActionResult> IsAssigned(int taskId, int userId, CancellationToken cancellationToken)
         => Ok(new

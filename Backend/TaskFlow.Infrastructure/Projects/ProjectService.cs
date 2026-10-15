@@ -245,6 +245,36 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
             && await dbContext.TaskAssignments.AnyAsync(a => a.TaskId == taskId && a.UserId == userId, cancellationToken);
     }
 
+    public async Task<bool> UnassignTaskAsync(
+        int taskId,
+        int currentUserId,
+        bool isAdmin,
+        CancellationToken cancellationToken = default)
+    {
+        var task = await dbContext.Tasks
+            .AsNoTracking()
+            .SingleOrDefaultAsync(t => t.Id == taskId && !t.IsDeleted, cancellationToken);
+
+        if (task is null
+            || await GetManagedProjectAsync(task.ProjectId, currentUserId, isAdmin, cancellationToken) is null)
+        {
+            return false;
+        }
+
+        var assignments = await dbContext.TaskAssignments
+            .Where(a => a.TaskId == taskId)
+            .ToListAsync(cancellationToken);
+
+        if (assignments.Count == 0)
+        {
+            return false;
+        }
+
+        dbContext.TaskAssignments.RemoveRange(assignments);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
     private IQueryable<Project> ProjectEntityQuery(
         int? currentUserId = null,
         bool isAdmin = true,

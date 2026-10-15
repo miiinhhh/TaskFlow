@@ -12,5 +12,6 @@ public interface IProjectService
     Task<bool> RemoveMemberAsync(int projectId, int userId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default);
     Task<bool> IsMemberAsync(int projectId, int userId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default);
     Task<TaskAssignmentResponse?> AssignTaskAsync(int taskId, int userId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default);
+    Task<bool> UnassignTaskAsync(int taskId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default);
     Task<bool> IsAssignedAsync(int taskId, int userId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default);
 }
