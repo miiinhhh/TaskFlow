@@ -30,14 +30,7 @@ public sealed class AuthService(TaskFlowDbContext dbContext, IConfiguration conf
             return new RegisterResult(false, "Email already exists.", null);
         }
 
-        var roleId = request.RoleId ?? await GetMemberRoleIdAsync(cancellationToken);
-        var roleExists = await dbContext.Roles
-            .AnyAsync(r => r.Id == roleId, cancellationToken);
-
-        if (!roleExists)
-        {
-            return new RegisterResult(false, "Role does not exist.", null);
-        }
+        var roleId = await GetMemberRoleIdAsync(cancellationToken);
 
         var user = new User
         {
@@ -103,6 +96,7 @@ public sealed class AuthService(TaskFlowDbContext dbContext, IConfiguration conf
             .Select(r => (int?)r.Id)
             .SingleOrDefaultAsync(cancellationToken);
 
-        return memberRoleId ?? 3;
+        return memberRoleId
+            ?? throw new InvalidOperationException("The Member role is not configured.");
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using TaskFlow.Infrastructure;
 using TaskFlow.API.Middleware;
@@ -24,8 +25,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidAudience = builder.Configuration["Jwt:Audience"],
             ValidateLifetime = true,
+            RequireExpirationTime = true,
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role,
             ClockSkew = TimeSpan.FromMinutes(1)
         };
+
+        options.MapInboundClaims = false;
     });
 builder.Services.AddAuthorization();
 builder.Services.AddInfrastructure(builder.Configuration);

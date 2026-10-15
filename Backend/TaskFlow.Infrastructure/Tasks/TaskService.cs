@@ -48,13 +48,18 @@ public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
     {
         var query = dbContext.Tasks
             .AsNoTracking()
-            .Where(t => !t.IsDeleted);
+            .Where(t => !t.IsDeleted
+                && dbContext.Projects.Any(p => p.Id == t.ProjectId && !p.IsArchived));
 
         if (!isAdmin)
         {
             query = query.Where(t =>
-                dbContext.Projects.Any(p => p.Id == t.ProjectId && p.OwnerId == currentUserId)
-                || dbContext.TaskAssignments.Any(a => a.TaskId == t.Id && a.UserId == currentUserId));
+                dbContext.Projects.Any(p => p.Id == t.ProjectId && !p.IsArchived && p.OwnerId == currentUserId)
+                || dbContext.TaskAssignments.Any(a =>
+                    a.TaskId == t.Id
+                    && a.UserId == currentUserId
+                    && dbContext.ProjectMembers.Any(m =>
+                        m.ProjectId == t.ProjectId && m.UserId == currentUserId)));
         }
 
         return await query
@@ -85,13 +90,19 @@ public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
     {
         var query = dbContext.Tasks
             .AsNoTracking()
-            .Where(t => t.Id == id && !t.IsDeleted);
+            .Where(t => t.Id == id
+                && !t.IsDeleted
+                && dbContext.Projects.Any(p => p.Id == t.ProjectId && !p.IsArchived));
 
         if (!isAdmin)
         {
             query = query.Where(t =>
-                dbContext.Projects.Any(p => p.Id == t.ProjectId && p.OwnerId == currentUserId)
-                || dbContext.TaskAssignments.Any(a => a.TaskId == t.Id && a.UserId == currentUserId));
+                dbContext.Projects.Any(p => p.Id == t.ProjectId && !p.IsArchived && p.OwnerId == currentUserId)
+                || dbContext.TaskAssignments.Any(a =>
+                    a.TaskId == t.Id
+                    && a.UserId == currentUserId
+                    && dbContext.ProjectMembers.Any(m =>
+                        m.ProjectId == t.ProjectId && m.UserId == currentUserId)));
         }
 
         return await query
@@ -169,8 +180,9 @@ public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
 
     private async Task<bool> CanManageTaskAsync(TaskItem task, int currentUserId, CancellationToken cancellationToken)
     {
-        return await dbContext.Projects.AnyAsync(p => p.Id == task.ProjectId && p.OwnerId == currentUserId, cancellationToken)
-            || await dbContext.TaskAssignments.AnyAsync(a => a.TaskId == task.Id && a.UserId == currentUserId, cancellationToken);
+        return await dbContext.Projects.AnyAsync(
+            p => p.Id == task.ProjectId && !p.IsArchived && p.OwnerId == currentUserId,
+            cancellationToken);
     }
 
     private Task<bool> CanManageProjectAsync(int projectId, int currentUserId, CancellationToken cancellationToken)
@@ -200,7 +212,8 @@ public sealed class TaskService(TaskFlowDbContext dbContext) : ITaskService
     {
         var query = dbContext.Tasks
             .AsNoTracking()
-            .Where(t => !t.IsDeleted);
+            .Where(t => !t.IsDeleted
+                && dbContext.Projects.Any(p => p.Id == t.ProjectId && !p.IsArchived));
 
         if (id.HasValue)
         {

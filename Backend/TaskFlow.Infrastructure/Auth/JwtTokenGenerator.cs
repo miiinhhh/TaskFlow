@@ -12,7 +12,7 @@ internal static class JwtTokenGenerator
     public static string CreateToken(AuthUserResponse user, DateTime expiresAt, IConfiguration configuration)
     {
         var secret = configuration["Jwt:Secret"]
-            ?? "TaskFlow development secret key. Replace this value in appsettings for production.";
+            ?? throw new InvalidOperationException("Jwt:Secret is not configured.");
 
         var issuer = configuration["Jwt:Issuer"] ?? "TaskFlow";
         var audience = configuration["Jwt:Audience"] ?? "TaskFlow";

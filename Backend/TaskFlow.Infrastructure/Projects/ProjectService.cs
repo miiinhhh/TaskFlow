@@ -175,6 +175,12 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
             return false;
         }
 
+        var assignments = await dbContext.TaskAssignments
+            .Where(a => a.UserId == userId
+                && dbContext.Tasks.Any(t => t.Id == a.TaskId && t.ProjectId == projectId))
+            .ToListAsync(cancellationToken);
+
+        dbContext.TaskAssignments.RemoveRange(assignments);
         dbContext.ProjectMembers.Remove(membership);
         await dbContext.SaveChangesAsync(cancellationToken);
         return true;
@@ -195,7 +201,8 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
         var task = await dbContext.Tasks.SingleOrDefaultAsync(t => t.Id == taskId && !t.IsDeleted, cancellationToken);
         if (task is null
             || await GetManagedProjectAsync(task.ProjectId, currentUserId, isAdmin, cancellationToken) is null
-            || !await dbContext.ProjectMembers.AnyAsync(m => m.ProjectId == task.ProjectId && m.UserId == userId, cancellationToken))
+            || !await dbContext.ProjectMembers.AnyAsync(m => m.ProjectId == task.ProjectId && m.UserId == userId, cancellationToken)
+            || !await dbContext.Users.AnyAsync(u => u.Id == userId && u.IsActive, cancellationToken))
         {
             return null;
         }
@@ -269,8 +276,10 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
 
     private Task<bool> HasProjectAccessAsync(int projectId, int currentUserId, bool isAdmin, CancellationToken cancellationToken)
     {
-        return isAdmin
-            ? Task.FromResult(true)
-            : dbContext.ProjectMembers.AnyAsync(m => m.ProjectId == projectId && m.UserId == currentUserId, cancellationToken);
+        return dbContext.Projects.AnyAsync(
+            p => p.Id == projectId
+                && !p.IsArchived
+                && (isAdmin || dbContext.ProjectMembers.Any(m => m.ProjectId == p.Id && m.UserId == currentUserId)),
+            cancellationToken);
     }
 }

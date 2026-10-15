@@ -5,5 +5,4 @@ public sealed record RegisterRequest(
     string Email,
     string Password,
     string FullName,
-    int? RoleId,
     string? AvatarUrl);

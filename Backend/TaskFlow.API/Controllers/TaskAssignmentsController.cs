@@ -12,6 +12,7 @@ namespace TaskFlow.API.Controllers;
 public sealed class TaskAssignmentsController(IProjectService projectService) : ControllerBase
 {
     [HttpPut("{taskId:int}/assignment")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<TaskAssignmentResponse>> Assign(
         int taskId,
         AssignTaskRequest request,

@@ -12,14 +12,8 @@ namespace TaskFlow.API.Controllers;
 [Produces("application/json")]
 public sealed class TasksController(ITaskService taskService) : ControllerBase
 {
-    [HttpGet("test-error")]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult TestError()
-    {
-        throw new Exception("Test exception");
-    }
-
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(typeof(TaskResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TaskResponse>> Create(
@@ -77,6 +71,7 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(typeof(TaskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -115,6 +110,7 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)

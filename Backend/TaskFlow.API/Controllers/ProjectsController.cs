@@ -37,6 +37,7 @@ public sealed class ProjectsController(IProjectService projectService) : Control
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ProjectResponse>> Update(int id, UpdateProjectRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Name) || request.Name.Length > 200 || request.EndDate < request.StartDate)
@@ -49,6 +50,7 @@ public sealed class ProjectsController(IProjectService projectService) : Control
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         => await projectService.DeleteAsync(id, CurrentUserId, IsAdmin, cancellationToken) ? NoContent() : Forbid();
 
@@ -60,12 +62,14 @@ public sealed class ProjectsController(IProjectService projectService) : Control
     }
 
     [HttpPost("{id:int}/members")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> AddMember(int id, AddProjectMemberRequest request, CancellationToken cancellationToken)
         => await projectService.AddMemberAsync(id, request.UserId, CurrentUserId, IsAdmin, cancellationToken)
             ? NoContent()
             : BadRequest("Project, user, or membership is invalid.");
 
     [HttpDelete("{id:int}/members/{userId:int}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> RemoveMember(int id, int userId, CancellationToken cancellationToken)
         => await projectService.RemoveMemberAsync(id, userId, CurrentUserId, IsAdmin, cancellationToken)
             ? NoContent()
