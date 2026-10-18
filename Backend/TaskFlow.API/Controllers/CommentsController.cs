@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Comments;
 
 namespace TaskFlow.API.Controllers;
@@ -24,15 +23,8 @@ public sealed class CommentsController(ICommentService commentService) : Control
             return BadRequest("Content is required.");
         }
 
-        try
-        {
-            var comment = await commentService.CreateAsync(request, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Task or user does not exist.");
-        }
+        var comment = await commentService.CreateAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
     }
 
     [HttpGet("api/tasks/{taskId:int}/comments")]

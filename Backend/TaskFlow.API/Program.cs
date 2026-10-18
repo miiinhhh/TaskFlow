@@ -4,10 +4,38 @@ using System.Security.Claims;
 using System.Text;
 using TaskFlow.Infrastructure;
 using TaskFlow.API.Middleware;
-
+using Microsoft.AspNetCore.Mvc;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(entry => entry.Value?.Errors.Count > 0)
+            .ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value!.Errors
+                    .Select(error =>
+                        string.IsNullOrWhiteSpace(error.ErrorMessage)
+                            ? "Invalid value."
+                            : error.ErrorMessage)
+                    .ToArray());
+
+        return new BadRequestObjectResult(new
+        {
+            success = false,
+            statusCode = 400,
+            message = "Validation failed.",
+            errors,
+            traceId = context.HttpContext.TraceIdentifier
+        });
+    };
+});
+
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -32,6 +60,42 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
 
         options.MapInboundClaims = false;
+        
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    success = false,
+                    statusCode = 401,
+                    message = "Authentication is required or the token is invalid.",
+                    errors = (object?)null,
+                    traceId = context.HttpContext.TraceIdentifier
+                });
+            },
+
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    success = false,
+                    statusCode = 403,
+                    message = "You do not have permission to access this resource.",
+                    errors = (object?)null,
+                    traceId = context.HttpContext.TraceIdentifier
+                });
+            }
+        };
+
     });
 builder.Services.AddAuthorization();
 builder.Services.AddInfrastructure(builder.Configuration);

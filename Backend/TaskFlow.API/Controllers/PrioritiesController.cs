@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Priorities;
 
 namespace TaskFlow.API.Controllers;
@@ -17,15 +16,8 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
             return BadRequest("Name is required.");
         }
 
-        try
-        {
-            var priority = await priorityService.CreateAsync(request, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = priority.Id }, priority);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Priority name already exists.");
-        }
+        var priority = await priorityService.CreateAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = priority.Id }, priority);
     }
 
     [HttpGet]
@@ -49,28 +41,14 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
             return BadRequest("Name is required.");
         }
 
-        try
-        {
-            var priority = await priorityService.UpdateAsync(id, request, cancellationToken);
-            return priority is null ? NotFound() : Ok(priority);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Priority name already exists or priority is being used.");
-        }
+        var priority = await priorityService.UpdateAsync(id, request, cancellationToken);
+        return priority is null ? NotFound() : Ok(priority);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var deleted = await priorityService.DeleteAsync(id, cancellationToken);
-            return deleted ? NoContent() : NotFound();
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Priority is being used by tasks.");
-        }
+        var deleted = await priorityService.DeleteAsync(id, cancellationToken);
+        return deleted ? NoContent() : NotFound();
     }
 }

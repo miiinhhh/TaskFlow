@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Tasks;
 
 namespace TaskFlow.API.Controllers;
@@ -34,23 +33,13 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
             return BadRequest("Title is required and valid. Hours cannot be negative, and due date must not precede start date.");
         }
 
-        try
+        var createdTask = await taskService.CreateAsync(request, CurrentUserId, IsAdmin, cancellationToken);
+        if (createdTask is null)
         {
-            var createdTask = await taskService.CreateAsync(request, CurrentUserId, IsAdmin, cancellationToken);
-            if (createdTask is null)
-            {
-                return Forbid();
-            }
-            return CreatedAtAction(nameof(GetById), new { id = createdTask.Id }, createdTask);
+            return Forbid();
         }
-        catch (TaskValidationException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("The task references a project, status, or priority that does not exist.");
-        }
+
+        return CreatedAtAction(nameof(GetById), new { id = createdTask.Id }, createdTask);
     }
 
     [HttpGet]
@@ -94,19 +83,8 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
             return BadRequest("Title is required and valid. Hours cannot be negative, and due date must not precede start date.");
         }
 
-        try
-        {
-            var updatedTask = await taskService.UpdateAsync(id, request, CurrentUserId, IsAdmin, cancellationToken);
-            return updatedTask is null ? NotFound() : Ok(updatedTask);
-        }
-        catch (TaskValidationException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("The task references a project, status, or priority that does not exist.");
-        }
+        var updatedTask = await taskService.UpdateAsync(id, request, CurrentUserId, IsAdmin, cancellationToken);
+        return updatedTask is null ? NotFound() : Ok(updatedTask);
     }
 
     [HttpDelete("{id:int}")]

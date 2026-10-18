@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Statuses;
 
 namespace TaskFlow.API.Controllers;
@@ -17,15 +16,8 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
             return BadRequest("Name is required.");
         }
 
-        try
-        {
-            var status = await statusService.CreateAsync(request, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = status.Id }, status);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Status name already exists.");
-        }
+        var status = await statusService.CreateAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = status.Id }, status);
     }
 
     [HttpGet]
@@ -49,28 +41,14 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
             return BadRequest("Name is required.");
         }
 
-        try
-        {
-            var status = await statusService.UpdateAsync(id, request, cancellationToken);
-            return status is null ? NotFound() : Ok(status);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Status name already exists or status is being used.");
-        }
+        var status = await statusService.UpdateAsync(id, request, cancellationToken);
+        return status is null ? NotFound() : Ok(status);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        try
-        {
-            var deleted = await statusService.DeleteAsync(id, cancellationToken);
-            return deleted ? NoContent() : NotFound();
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Status is being used by tasks.");
-        }
+        var deleted = await statusService.DeleteAsync(id, cancellationToken);
+        return deleted ? NoContent() : NotFound();
     }
 }
