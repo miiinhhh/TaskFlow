@@ -1,15 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Priorities;
 
 namespace TaskFlow.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/priorities")]
 [Produces("application/json")]
 public sealed class PrioritiesController(IPriorityService priorityService) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PriorityResponse>> Create(CreatePriorityRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -42,6 +45,7 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PriorityResponse>> Update(int id, UpdatePriorityRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -61,6 +65,7 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         try

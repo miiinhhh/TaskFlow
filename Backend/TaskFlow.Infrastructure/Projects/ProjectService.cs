@@ -9,6 +9,8 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
 {
     public async Task<ProjectResponse> CreateAsync(int currentUserId, CreateProjectRequest request, CancellationToken cancellationToken = default)
     {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
         var project = new Project
         {
             OwnerId = currentUserId,
@@ -29,6 +31,8 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
             JoinedAt = DateTime.UtcNow
         });
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
 
         return await ProjectEntityQuery(projectId: project.Id)
             .Select(p => new ProjectResponse(

@@ -7,12 +7,17 @@ namespace TaskFlow.Infrastructure.Histories;
 
 public sealed class TaskHistoryService(TaskFlowDbContext dbContext) : ITaskHistoryService
 {
-    public async Task<TaskHistoryResponse> CreateAsync(CreateTaskHistoryRequest request, CancellationToken cancellationToken = default)
+    public async Task<TaskHistoryResponse?> CreateAsync(int taskId, int currentUserId, bool isAdmin, CreateTaskHistoryRequest request, CancellationToken cancellationToken = default)
     {
+        if (!await CanManageTaskAsync(taskId, currentUserId, isAdmin, cancellationToken))
+        {
+            return null;
+        }
+
         var history = new TaskHistory
         {
-            TaskId = request.TaskId,
-            UserId = request.UserId,
+            TaskId = taskId,
+            UserId = currentUserId,
             Action = request.Action.Trim(),
             OldValue = request.OldValue,
             NewValue = request.NewValue,
@@ -26,18 +31,32 @@ public sealed class TaskHistoryService(TaskFlowDbContext dbContext) : ITaskHisto
             .SingleAsync(h => h.Id == history.Id, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TaskHistoryResponse>> GetByTaskIdAsync(int taskId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<TaskHistoryResponse>?> GetByTaskIdAsync(int taskId, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
+        if (!await CanViewTaskAsync(taskId, currentUserId, isAdmin, cancellationToken))
+        {
+            return null;
+        }
+
         return await ProjectHistory()
             .Where(h => h.TaskId == taskId)
             .OrderByDescending(h => h.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 
-    public Task<TaskHistoryResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<TaskHistoryResponse?> GetByIdAsync(int id, int currentUserId, bool isAdmin, CancellationToken cancellationToken = default)
     {
-        return ProjectHistory()
-            .SingleOrDefaultAsync(h => h.Id == id, cancellationToken);
+        var taskId = await dbContext.TaskHistories
+            .Where(h => h.Id == id)
+            .Select(h => (int?)h.TaskId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (!taskId.HasValue || !await CanViewTaskAsync(taskId.Value, currentUserId, isAdmin, cancellationToken))
+        {
+            return null;
+        }
+
+        return await ProjectHistory().SingleAsync(h => h.Id == id, cancellationToken);
     }
 
     private IQueryable<TaskHistoryResponse> ProjectHistory()
@@ -54,5 +73,27 @@ public sealed class TaskHistoryService(TaskFlowDbContext dbContext) : ITaskHisto
                 h.OldValue,
                 h.NewValue,
                 h.CreatedAt));
+    }
+
+    private Task<bool> CanViewTaskAsync(int taskId, int currentUserId, bool isAdmin, CancellationToken cancellationToken)
+    {
+        return dbContext.Tasks.AnyAsync(t =>
+            t.Id == taskId
+            && !t.IsDeleted
+            && dbContext.Projects.Any(p => p.Id == t.ProjectId && !p.IsArchived)
+            && (isAdmin
+                || dbContext.Projects.Any(p => p.Id == t.ProjectId && p.OwnerId == currentUserId)
+                || (dbContext.ProjectMembers.Any(m => m.ProjectId == t.ProjectId && m.UserId == currentUserId)
+                    && dbContext.TaskAssignments.Any(a => a.TaskId == t.Id && a.UserId == currentUserId))),
+            cancellationToken);
+    }
+
+    private Task<bool> CanManageTaskAsync(int taskId, int currentUserId, bool isAdmin, CancellationToken cancellationToken)
+    {
+        return dbContext.Tasks.AnyAsync(t =>
+            t.Id == taskId
+            && !t.IsDeleted
+            && dbContext.Projects.Any(p => p.Id == t.ProjectId && !p.IsArchived && (isAdmin || p.OwnerId == currentUserId)),
+            cancellationToken);
     }
 }

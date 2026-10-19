@@ -6,11 +6,6 @@ internal static class PasswordVerifier
 {
     public static bool Verify(string password, string passwordHash)
     {
-        if (passwordHash == "DEMO_PASSWORD_HASH")
-        {
-            return password is "password" or "123456";
-        }
-
         var parts = passwordHash.Split('$');
         if (parts.Length != 4 || parts[0] != "PBKDF2")
         {

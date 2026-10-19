@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TaskFlow.Application.Comments;
 
 public sealed record CreateCommentRequest(
-    int TaskId,
-    int UserId,
-    string Content);
+    [property: Required, StringLength(4000)] string Content);

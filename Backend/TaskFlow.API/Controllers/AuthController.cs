@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using TaskFlow.Application.Auth;
 
 namespace TaskFlow.API.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/auth")]
 [Produces("application/json")]
 public sealed class AuthController(IAuthService authService) : ControllerBase
