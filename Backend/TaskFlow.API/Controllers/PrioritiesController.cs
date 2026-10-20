@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using TaskFlow.Application.Exceptions;
 using TaskFlow.Application.Priorities;
 
 namespace TaskFlow.API.Controllers;
@@ -27,7 +28,7 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
         }
         catch (DbUpdateException)
         {
-            return BadRequest("Priority name already exists.");
+            throw new ConflictException("Priority name already exists.");
         }
     }
 
@@ -60,7 +61,7 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
         }
         catch (DbUpdateException)
         {
-            return BadRequest("Priority name already exists or priority is being used.");
+            throw new ConflictException("Priority name already exists or the priority is being used.");
         }
     }
 
@@ -75,7 +76,7 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
         }
         catch (DbUpdateException)
         {
-            return BadRequest("Priority is being used by tasks.");
+            throw new ConflictException("Priority is being used by tasks.");
         }
     }
 }

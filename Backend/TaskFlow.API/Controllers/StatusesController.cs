@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using TaskFlow.Application.Exceptions;
 using TaskFlow.Application.Statuses;
 
 namespace TaskFlow.API.Controllers;
@@ -27,7 +28,7 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
         }
         catch (DbUpdateException)
         {
-            return BadRequest("Status name already exists.");
+            throw new ConflictException("Status name already exists.");
         }
     }
 
@@ -60,7 +61,7 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
         }
         catch (DbUpdateException)
         {
-            return BadRequest("Status name already exists or status is being used.");
+            throw new ConflictException("Status name already exists or the status is being used.");
         }
     }
 
@@ -75,7 +76,7 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
         }
         catch (DbUpdateException)
         {
-            return BadRequest("Status is being used by tasks.");
+            throw new ConflictException("Status is being used by tasks.");
         }
     }
 }

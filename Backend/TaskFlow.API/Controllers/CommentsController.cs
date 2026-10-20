@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TaskFlow.Application.Comments;
 
@@ -27,20 +26,18 @@ public sealed class CommentsController(ICommentService commentService) : Control
             return BadRequest("Content is required.");
         }
 
-        try
+        var comment = await commentService.CreateAsync(
+            taskId,
+            CurrentUserId,
+            IsAdmin,
+            request,
+            cancellationToken);
+        if (comment is null)
         {
-            var comment = await commentService.CreateAsync(taskId, CurrentUserId, IsAdmin, request, cancellationToken);
-            if (comment is null)
-            {
-                return Forbid();
-            }
+            return Forbid();
+        }
 
-            return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
-        }
-        catch (DbUpdateException)
-        {
-            return BadRequest("Task or user does not exist.");
-        }
+        return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment);
     }
 
     [HttpGet("api/tasks/{taskId:int}/comments")]
