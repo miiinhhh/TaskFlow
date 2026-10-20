@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace TaskFlow.Application.Projects;
 
 public sealed record CreateProjectRequest(
-    [property: Required, StringLength(200)] string Name,
-    [property: StringLength(1000)] string? Description,
+    [param: Required, StringLength(200)] string Name,
+    [param: StringLength(1000)] string? Description,
     DateOnly? StartDate,
     DateOnly? EndDate);

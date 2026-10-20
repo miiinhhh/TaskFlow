@@ -110,16 +110,6 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestTraceMiddleware>();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapOpenApi();
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "TaskFlow API v1");
-    options.RoutePrefix = "swagger";
-});
 
 // Keep HTTP available for local Postman/Swagger testing.
 if (!app.Environment.IsDevelopment())
@@ -127,6 +117,16 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.MapOpenApi().AllowAnonymous();
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "TaskFlow API v1");
+    options.RoutePrefix = "swagger";
+});
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

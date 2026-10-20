@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace TaskFlow.Application.Statuses;
 
 public sealed record UpdateStatusRequest(
-    [property: Required, StringLength(50)] string Name,
-    [property: StringLength(255)] string? Description,
-    [property: Range(0, int.MaxValue)] int DisplayOrder,
+    [param: Required, StringLength(50)] string Name,
+    [param: StringLength(255)] string? Description,
+    [param: Range(0, int.MaxValue)] int DisplayOrder,
     bool IsCompleted);
