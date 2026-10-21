@@ -143,6 +143,8 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
         return await dbContext.ProjectMembers
             .AsNoTracking()
             .Where(m => m.ProjectId == projectId)
+            .OrderBy(m => m.User!.FullName)
+            .ThenBy(m => m.UserId)
             .Select(m => new ProjectMemberResponse(
                 m.ProjectId,
                 m.UserId,
@@ -150,7 +152,6 @@ public sealed class ProjectService(TaskFlowDbContext dbContext) : IProjectServic
                 m.User.FullName,
                 m.User.Role == null ? null : m.User.Role.Name,
                 m.JoinedAt))
-            .OrderBy(m => m.FullName)
             .ToListAsync(cancellationToken);
     }
 
