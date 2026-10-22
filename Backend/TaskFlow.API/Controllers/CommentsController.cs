@@ -21,11 +21,6 @@ public sealed class CommentsController(ICommentService commentService) : Control
             return Unauthorized();
         }
 
-        if (string.IsNullOrWhiteSpace(request.Content))
-        {
-            return BadRequest("Content is required.");
-        }
-
         var comment = await commentService.CreateAsync(
             taskId,
             CurrentUserId,
@@ -60,11 +55,6 @@ public sealed class CommentsController(ICommentService commentService) : Control
         UpdateCommentRequest request,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Content))
-        {
-            return BadRequest("Content is required.");
-        }
-
         var comment = await commentService.UpdateAsync(id, CurrentUserId, IsAdmin, request, cancellationToken);
         return comment is null ? NotFound() : Ok(comment);
     }

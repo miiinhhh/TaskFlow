@@ -16,11 +16,6 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PriorityResponse>> Create(CreatePriorityRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return BadRequest("Name is required.");
-        }
-
         try
         {
             var priority = await priorityService.CreateAsync(request, cancellationToken);
@@ -49,11 +44,6 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PriorityResponse>> Update(int id, UpdatePriorityRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            return BadRequest("Name is required.");
-        }
-
         try
         {
             var priority = await priorityService.UpdateAsync(id, request, cancellationToken);

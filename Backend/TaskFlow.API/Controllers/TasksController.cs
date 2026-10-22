@@ -24,15 +24,6 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
             return Unauthorized();
         }
 
-        if (string.IsNullOrWhiteSpace(request.Title)
-            || request.Title.Length > 200
-            || request.EstimatedHours is < 0
-            || request.ActualHours is < 0
-            || (request.StartDate.HasValue && request.DueDate.HasValue && request.DueDate < request.StartDate))
-        {
-            return BadRequest("Title is required and valid. Hours cannot be negative, and due date must not precede start date.");
-        }
-
         var createdTask = await taskService.CreateAsync(request, CurrentUserId, IsAdmin, cancellationToken);
         if (createdTask is null)
         {
@@ -72,15 +63,6 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
         if (CurrentUserId <= 0)
         {
             return Unauthorized();
-        }
-
-        if (string.IsNullOrWhiteSpace(request.Title)
-            || request.Title.Length > 200
-            || request.EstimatedHours is < 0
-            || request.ActualHours is < 0
-            || (request.StartDate.HasValue && request.DueDate.HasValue && request.DueDate < request.StartDate))
-        {
-            return BadRequest("Title is required and valid. Hours cannot be negative, and due date must not precede start date.");
         }
 
         var updatedTask = await taskService.UpdateAsync(id, request, CurrentUserId, IsAdmin, cancellationToken);

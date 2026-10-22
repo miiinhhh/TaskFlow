@@ -1,12 +1,14 @@
 using System.ComponentModel.DataAnnotations;
+using TaskFlow.Application.Validation;
 
 namespace TaskFlow.Application.Tasks;
 
+[DateRange(nameof(StartDate), nameof(DueDate))]
 public sealed record CreateTaskRequest(
     [param: Range(1, int.MaxValue)] int ProjectId,
     [param: Range(1, int.MaxValue)] int StatusId,
     [param: Range(1, int.MaxValue)] int PriorityId,
-    [param: Required, StringLength(200)] string Title,
+    [param: Required, NotWhiteSpace, StringLength(200)] string Title,
     [param: StringLength(4000)] string? Description,
     DateTime? StartDate,
     DateTime? DueDate,

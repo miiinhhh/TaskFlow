@@ -16,11 +16,6 @@ public sealed class ProjectsController(IProjectService projectService) : Control
     [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status201Created)]
     public async Task<ActionResult<ProjectResponse>> Create(CreateProjectRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name) || request.Name.Length > 200 || request.EndDate < request.StartDate)
-        {
-            return BadRequest("Name is required and dates are invalid.");
-        }
-
         var project = await projectService.CreateAsync(CurrentUserId, request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = project.Id }, project);
     }
@@ -40,11 +35,6 @@ public sealed class ProjectsController(IProjectService projectService) : Control
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ProjectResponse>> Update(int id, UpdateProjectRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name) || request.Name.Length > 200 || request.EndDate < request.StartDate)
-        {
-            return BadRequest("Name is required and dates are invalid.");
-        }
-
         var project = await projectService.UpdateAsync(id, CurrentUserId, IsAdmin, request, cancellationToken);
         return project is null ? Forbid() : Ok(project);
     }
