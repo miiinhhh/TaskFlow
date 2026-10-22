@@ -1,0 +1,25 @@
+$kind: http-request
+url: http://localhost:5284/api/auth/login
+method: POST
+body:
+  type: json
+  content: "\r
+
+    {\r
+
+    \  \"usernameOrEmail\": \"new-member\",\r
+
+    \  \"password\": \"secure-password\"\r
+
+    }\r
+
+    \  "
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Login returns an expected status\", function () {\r
+
+      \    pm.expect([200, 400, 401]).to.include(pm.response.code);\r
+
+      });"
+    language: text/javascript
+order: 2000

@@ -1,0 +1,31 @@
+$kind: http-request
+url: http://localhost:5284/api/auth/register
+method: POST
+body:
+  type: json
+  content: "\r
+
+    {\r
+
+    \  \"username\": \"new-member\",\r
+
+    \  \"email\": \"member@example.com\",\r
+
+    \  \"password\": \"secure-password\",\r
+
+    \  \"fullName\": \"New Member\",\r
+
+    \  \"avatarUrl\": null\r
+
+    }\r
+
+    \  "
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Register returns 201 or 400\", function () {\r
+
+      \    pm.expect([201, 400]).to.include(pm.response.code);\r
+
+      });"
+    language: text/javascript
+order: 1000
