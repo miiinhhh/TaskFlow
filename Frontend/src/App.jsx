@@ -251,6 +251,7 @@ export default function App() {
   const visibleTasks = useMemo(() => tasks.filter((task) => (!projectFilter || task.projectId === Number(projectFilter)) && (!search || task.title.toLowerCase().includes(search.toLowerCase()))), [tasks, projectFilter, search]);
   const completedIds = new Set(statuses.filter((item) => item.isCompleted).map((item) => item.id));
   const recentTasks = [...tasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const displayName = user?.username || user?.fullName || `User #${user?.id}`;
 
   async function deleteTask(id) {
     if (!confirm("Xóa công việc này?")) return;
@@ -260,13 +261,13 @@ export default function App() {
   if (!token || !user) return <AuthPage request={request} onAuthenticated={authenticated} />;
 
   return <div className="app-shell">
-    <header className="topbar"><div className="brand"><span className="brand-mark">TF</span><strong>TaskFlow</strong></div><div className="user-area"><span>{user.fullName}</span><span className="role-badge">{user.roleName}</span><button className="button small" onClick={logout}>Đăng xuất</button></div></header>
+    <header className="topbar"><div className="brand"><span className="brand-mark">TF</span><strong>TaskFlow</strong></div><div className="user-area"><span>{displayName}</span><span className="role-badge">{user.roleName}</span><button className="button small" onClick={logout}>Đăng xuất</button></div></header>
     <div className="layout">
       <nav className="sidebar">{[["dashboard", "Tổng quan"], ["projects", "Dự án"], ["tasks", "Công việc"]].map(([key, label]) => <button key={key} className={view === key ? "active" : ""} onClick={() => setView(key)}>{label}</button>)}</nav>
       <main className="content">
         {notice && <div className="notice"><span>{notice}</span><button onClick={() => setNotice("")}>×</button></div>}
         {view === "dashboard" && <section>
-          <PageHeading title="Tổng quan" subtitle={`Xin chào, ${user.fullName}`}>{canManage && <button className="button primary" onClick={() => setModal({ type: "task" })}>+ Tạo công việc</button>}</PageHeading>
+          <PageHeading title="Tổng quan" subtitle={`Xin chào, ${displayName}`}>{canManage && <button className="button primary" onClick={() => setModal({ type: "task" })}>+ Tạo công việc</button>}</PageHeading>
           <div className="summary-grid"><Summary label="Dự án" value={projects.length} /><Summary label="Công việc" value={tasks.length} /><Summary label="Đã hoàn thành" value={tasks.filter((item) => completedIds.has(item.statusId)).length} /></div>
           <section className="panel"><h2>Công việc gần đây</h2>{recentTasks.length ? recentTasks.map((task) => <div className="simple-item" key={task.id}><div><strong>{task.title}</strong><small>{task.projectName}</small></div><span className="status">{task.statusName}</span></div>) : <p className="empty">Chưa có công việc.</p>}</section>
         </section>}
