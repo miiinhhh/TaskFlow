@@ -5,7 +5,7 @@ using Microsoft.OpenApi;
 using System.Security.Claims;
 using System.Text;
 using TaskFlow.Infrastructure;
-using TaskFlow.API.Middleware;=
+using TaskFlow.API.Middleware;
 using TaskFlow.API.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.DataProtection;
@@ -33,7 +33,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Tùy chỉnh response khi validation thất bại
+
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -59,6 +59,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         });
     };
 });
+
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
