@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:5284/api/projects/1
+method: DELETE
+order: 3000
