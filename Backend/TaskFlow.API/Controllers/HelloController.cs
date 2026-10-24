@@ -15,4 +15,17 @@ public sealed class HelloController : ControllerBase
     {
         return Content("Hello ASP.NET Core!", "text/plain");
     }
+
+    [HttpGet("health")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult Health()
+    {
+        return Ok(new
+        {
+            status = "ok",
+            service = "TaskFlow API",
+            timestamp = DateTimeOffset.UtcNow
+        });
+    }
 }

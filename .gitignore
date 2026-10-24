@@ -24,3 +24,4 @@ Thumbs.db
 ## Secrets
 .env
 appsettings.Local.json
+Backend/TaskFlow.API/.keys/
