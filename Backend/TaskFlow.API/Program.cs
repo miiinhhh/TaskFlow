@@ -10,14 +10,34 @@ using TaskFlow.API.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.DataProtection;
 var builder = WebApplication.CreateBuilder(args);
+// Cấu hình Data Protection
 
+var dataProtectionkey =
+Path.Combine(builder.Environment.ContentRootPath, "keys");
 
-// đăng ký  routeRouteParameterValidationFilter
-builder.Services.AddControllers(option=>
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionkey))
+    .SetApplicationName("TaskFlowApp");
+
+// Cấu hình Cors
+builder.Services.AddCors(options =>
 {
-    option.Filters.Add<RouteParameterValidationFilter>();
-
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
+
+.AllowAnyHeader()
+.AllowAnyMethod()
+
+app.UseCors("Frontend");
+
 
 
  
