@@ -10,37 +10,55 @@ using TaskFlow.API.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.DataProtection;
 var builder = WebApplication.CreateBuilder(args);
-// Cấu hình Data Protection
 
-var dataProtectionkey =
-Path.Combine(builder.Environment.ContentRootPath, "keys");
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<RouteParameterValidationFilter>();
+});
 
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionkey))
-    .SetApplicationName("TaskFlowApp");
+var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, ".keys");
+builder.Services
+    .AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+    .SetApplicationName("TaskFlow");
 
-// Cấu hình Cors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "http://127.0.0.1:5173")
+            .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
-.AllowAnyHeader()
-.AllowAnyMethod()
 
-app.UseCors("Frontend");
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(entry => entry.Value?.Errors.Count > 0)
+            .ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value!.Errors
+                    .Select(error =>
+                        string.IsNullOrWhiteSpace(error.ErrorMessage)
+                            ? "Invalid value."
+                            : error.ErrorMessage)
+                    .ToArray());
 
-
-
- 
+        return new BadRequestObjectResult(new
+        {
+            success = false,
+            statusCode = 400,
+            message = "Validation failed.",
+            errors,
+            traceId = context.HttpContext.TraceIdentifier
+        });
+    };
+});
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
