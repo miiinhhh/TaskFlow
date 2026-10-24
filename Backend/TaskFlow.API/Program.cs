@@ -11,54 +11,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.DataProtection;
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<RouteParameterValidationFilter>();
-});
 
-var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, ".keys");
-builder.Services
-    .AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
-    .SetApplicationName("TaskFlow");
-
-builder.Services.AddCors(options =>
+// đăng ký  routeRouteParameterValidationFilter
+builder.Services.AddControllers(option=>
 {
-    options.AddPolicy("Frontend", policy =>
-    {
-        policy
-            .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
+    option.Filters.Add<RouteParameterValidationFilter>();
+
 });
 
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.InvalidModelStateResponseFactory = context =>
-    {
-        var errors = context.ModelState
-            .Where(entry => entry.Value?.Errors.Count > 0)
-            .ToDictionary(
-                entry => entry.Key,
-                entry => entry.Value!.Errors
-                    .Select(error =>
-                        string.IsNullOrWhiteSpace(error.ErrorMessage)
-                            ? "Invalid value."
-                            : error.ErrorMessage)
-                    .ToArray());
-
-        return new BadRequestObjectResult(new
-        {
-            success = false,
-            statusCode = 400,
-            message = "Validation failed.",
-            errors,
-            traceId = context.HttpContext.TraceIdentifier
-        });
-    };
-});
+ 
 
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
