@@ -11,11 +11,11 @@ body:
 
     \  \"email\": \"member@example.com\",\r
 
-    \  \"password\": \"secure-password\",\r
+    \  \"password\": \"password123\",\r
 
     \  \"fullName\": \"New Member\",\r
 
-    \  \"avatarUrl\": null\r
+    \  \"avatarUrl\": \"https://example.com/avatar.png\"\r
 
     }\r
 

@@ -7,9 +7,9 @@ body:
 
     {\r
 
-    \  \"usernameOrEmail\": \"new-member\",\r
+    \  \"usernameOrEmail\": \"minh\",\r
 
-    \  \"password\": \"secure-password\"\r
+    \  \"password\": \"DEMO_PASSWORD_HASH\"\r
 
     }\r
 

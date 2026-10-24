@@ -1,4 +1,4 @@
 $kind: http-request
-url: ""
+url: http://localhost:5284/api/projects
 method: GET
 order: 1000
