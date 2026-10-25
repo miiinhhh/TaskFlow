@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:5284/api/priorities
+method: POST
+order: 4000
