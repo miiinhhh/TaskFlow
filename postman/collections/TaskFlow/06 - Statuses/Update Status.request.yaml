@@ -1,0 +1,17 @@
+$kind: http-request
+url: http://localhost:5284/api/statuses/1
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"Done\",\r
+
+    \  \"description\": \"Công việc đã hoàn thành\",\r
+
+    \  \"displayOrder\": 4,\r
+
+    \  \"isCompleted\": true\r
+
+    }"
+order: 4000
