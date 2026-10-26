@@ -1,0 +1,15 @@
+$kind: http-request
+url: http://localhost:5284/api/tasks/1/comments
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"taskId\": 1,\r
+
+    \  \"userId\": 1,\r
+
+    \  \"content\": \"Tôi đã hoàn thành phần giao diện.\"\r
+
+    }"
+order: 4000
