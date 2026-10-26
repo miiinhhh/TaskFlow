@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:5284/api/Comments/1
+method: PUT
+order: 7000
