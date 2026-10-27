@@ -3,17 +3,13 @@ url: http://localhost:5284/api/auth/login
 method: POST
 body:
   type: json
-  content: "\r
+  content: "{\r
 
-    {\r
+    \  \"usernameOrEmail\": \"user01\",\r
 
-    \  \"usernameOrEmail\": \"minh\",\r
+    \  \"password\": \"Password123\"\r
 
-    \  \"password\": \"DEMO_PASSWORD_HASH\"\r
-
-    }\r
-
-    \  "
+    }"
 scripts:
   - type: afterResponse
     code: "pm.test(\"Login returns an expected status\", function () {\r
