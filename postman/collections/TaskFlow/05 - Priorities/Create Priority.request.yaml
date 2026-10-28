@@ -1,4 +1,13 @@
 $kind: http-request
 url: http://localhost:5284/api/priorities
 method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"High\",\r
+
+    \  \"level\": 3\r
+
+    }"
 order: 4000
