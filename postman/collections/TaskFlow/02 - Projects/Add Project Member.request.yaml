@@ -3,5 +3,5 @@ url: http://localhost:5284/api/projects/1/members
 method: POST
 body:
   type: json
-  content: "{\r\n  \"userId\": 2\r\n}"
+  content: "{\r\n  \"userId\": 3\r\n}"
 order: 7000

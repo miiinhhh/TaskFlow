@@ -5,9 +5,9 @@ body:
   type: json
   content: "{\r
 
-    \  \"usernameOrEmail\": \"user01\",\r
+    \  \"usernameOrEmail\": \"minh\",\r
 
-    \  \"password\": \"Password123\"\r
+    \  \"password\": \"DEMO_PASSWORD_HASH\"\r
 
     }"
 scripts:
