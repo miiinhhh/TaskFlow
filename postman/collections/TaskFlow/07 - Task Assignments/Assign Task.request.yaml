@@ -3,5 +3,5 @@ url: http://localhost:5284/api/tasks/1/assignment
 method: PUT
 body:
   type: json
-  content: "{\r\n  \"userId\": 3\r\n}"
+  content: "{\r\n  \"userId\": 2\r\n}"
 order: 3000

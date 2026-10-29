@@ -5,9 +5,9 @@ body:
   type: json
   content: "{\r
 
-    \  \"taskId\": 1,\r
+    \  \"taskId\": 2,\r
 
-    \  \"userId\": 1,\r
+    \  \"userId\": 2,\r
 
     \  \"action\": \"UpdateStatus\",\r
 
