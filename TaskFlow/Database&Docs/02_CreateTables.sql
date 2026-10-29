@@ -1,0 +1,179 @@
+USE TaskFlowDb;
+GO
+
+CREATE TABLE Roles (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE,
+    Description NVARCHAR(255) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+);
+GO
+
+CREATE TABLE Users (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    RoleId INT NOT NULL,
+    Username NVARCHAR(100) NOT NULL UNIQUE,
+    Email NVARCHAR(255) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(500) NOT NULL,
+    FullName NVARCHAR(150) NOT NULL,
+    AvatarUrl NVARCHAR(500) NULL,
+    IsActive BIT NOT NULL DEFAULT 1,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedAt DATETIME2 NULL,
+    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(Id)
+);
+GO
+
+CREATE TABLE Projects (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    OwnerId INT NOT NULL,
+    Name NVARCHAR(200) NOT NULL,
+    Description NVARCHAR(1000) NULL,
+    StartDate DATE NULL,
+    EndDate DATE NULL,
+    IsArchived BIT NOT NULL DEFAULT 0,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedAt DATETIME2 NULL,
+    CONSTRAINT FK_Projects_Owner FOREIGN KEY (OwnerId) REFERENCES Users(Id)
+);
+GO
+
+CREATE TABLE ProjectMembers (
+    ProjectId INT NOT NULL,
+    UserId INT NOT NULL,
+    JoinedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    PRIMARY KEY (ProjectId, UserId),
+    CONSTRAINT FK_ProjectMembers_Project FOREIGN KEY (ProjectId) REFERENCES Projects(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_ProjectMembers_User FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+GO
+
+CREATE TABLE TaskStatuses (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE,
+    Description NVARCHAR(255) NULL,
+    DisplayOrder INT NOT NULL DEFAULT 0,
+    IsCompleted BIT NOT NULL DEFAULT 0
+);
+GO
+
+CREATE TABLE TaskPriorities (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE,
+    Description NVARCHAR(255) NULL,
+    Level INT NOT NULL
+);
+GO
+
+CREATE TABLE Tasks (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ProjectId INT NOT NULL,
+    CreatedById INT NOT NULL,
+    StatusId INT NOT NULL,
+    PriorityId INT NOT NULL,
+    Title NVARCHAR(200) NOT NULL,
+    Description NVARCHAR(MAX) NULL,
+    StartDate DATETIME2 NULL,
+    DueDate DATETIME2 NULL,
+    EstimatedHours DECIMAL(10,2) NULL,
+    ActualHours DECIMAL(10,2) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedAt DATETIME2 NULL,
+    CompletedAt DATETIME2 NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Tasks_Project FOREIGN KEY (ProjectId) REFERENCES Projects(Id),
+    CONSTRAINT FK_Tasks_CreatedBy FOREIGN KEY (CreatedById) REFERENCES Users(Id),
+    CONSTRAINT FK_Tasks_Status FOREIGN KEY (StatusId) REFERENCES TaskStatuses(Id),
+    CONSTRAINT FK_Tasks_Priority FOREIGN KEY (PriorityId) REFERENCES TaskPriorities(Id)
+);
+GO
+
+CREATE TABLE TaskAssignments (
+    TaskId INT NOT NULL,
+    UserId INT NOT NULL,
+    AssignedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    AssignedById INT NULL,
+    PRIMARY KEY (TaskId, UserId),
+    CONSTRAINT FK_TaskAssignments_Task FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_TaskAssignments_User FOREIGN KEY (UserId) REFERENCES Users(Id),
+    CONSTRAINT FK_TaskAssignments_AssignedBy FOREIGN KEY (AssignedById) REFERENCES Users(Id)
+);
+GO
+
+CREATE TABLE TaskComments (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    TaskId INT NOT NULL,
+    UserId INT NOT NULL,
+    Content NVARCHAR(MAX) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedAt DATETIME2 NULL,
+    IsDeleted BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_TaskComments_Task FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_TaskComments_User FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+GO
+
+CREATE TABLE TaskAttachments (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    TaskId INT NOT NULL,
+    UploadedById INT NOT NULL,
+    FileName NVARCHAR(255) NOT NULL,
+    FileUrl NVARCHAR(1000) NOT NULL,
+    FileSize BIGINT NULL,
+    ContentType NVARCHAR(100) NULL,
+    UploadedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CONSTRAINT FK_TaskAttachments_Task FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_TaskAttachments_User FOREIGN KEY (UploadedById) REFERENCES Users(Id)
+);
+GO
+
+CREATE TABLE TaskHistories (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    TaskId INT NOT NULL,
+    UserId INT NOT NULL,
+    Action NVARCHAR(100) NOT NULL,
+    OldValue NVARCHAR(MAX) NULL,
+    NewValue NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CONSTRAINT FK_TaskHistories_Task FOREIGN KEY (TaskId) REFERENCES Tasks(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_TaskHistories_User FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+GO
+
+CREATE TABLE Notifications (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL,
+    Title NVARCHAR(200) NOT NULL,
+    Message NVARCHAR(1000) NOT NULL,
+    Type NVARCHAR(50) NULL,
+    RelatedTaskId INT NULL,
+    RelatedProjectId INT NULL,
+    IsRead BIT NOT NULL DEFAULT 0,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    CONSTRAINT FK_Notifications_User FOREIGN KEY (UserId) REFERENCES Users(Id),
+    CONSTRAINT FK_Notifications_Task FOREIGN KEY (RelatedTaskId) REFERENCES Tasks(Id),
+    CONSTRAINT FK_Notifications_Project FOREIGN KEY (RelatedProjectId) REFERENCES Projects(Id)
+);
+GO
+
+CREATE TABLE RefreshTokens (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL,
+    Token NVARCHAR(500) NOT NULL UNIQUE,
+    ExpiresAt DATETIME2 NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    RevokedAt DATETIME2 NULL,
+    CONSTRAINT FK_RefreshTokens_User FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
+GO
+
+CREATE TABLE UserNotifications (
+    UserId INT NOT NULL,
+    NotificationId INT NOT NULL,
+    IsRead BIT NOT NULL DEFAULT 0,
+    ReadAt DATETIME2 NULL,
+    PRIMARY KEY (UserId, NotificationId),
+    CONSTRAINT FK_UserNotifications_User FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_UserNotifications_Notification FOREIGN KEY (NotificationId) REFERENCES Notifications(Id) ON DELETE CASCADE
+);
+GO
