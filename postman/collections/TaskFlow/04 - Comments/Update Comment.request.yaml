@@ -1,4 +1,11 @@
 $kind: http-request
 url: http://localhost:5284/api/Comments/1
 method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"content\": \"Tôi đã hoàn thành và kiểm thử giao diện.\"\r
+
+    }"
 order: 7000
