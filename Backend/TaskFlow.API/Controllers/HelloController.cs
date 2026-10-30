@@ -16,15 +16,10 @@ public sealed class HelloController : ControllerBase
     [HttpGet("health")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult Health()
+    public IActionResult Health() => Ok(new
     {
-        var healthResponse = new
-        {
-            status = "ok",
-            service = "TaskFlow API",
-            timestamp = DateTimeOffset.UtcNow
-        };
-
-        return Ok(healthResponse);
-    }
+        status = "ok",
+        service = "TaskFlow API",
+        timestamp = DateTimeOffset.UtcNow
+    });
 }

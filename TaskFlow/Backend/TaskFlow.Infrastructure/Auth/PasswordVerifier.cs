@@ -8,36 +8,25 @@ internal static class PasswordVerifier
     {
         if (passwordHash == "DEMO_PASSWORD_HASH")
         {
-            if (password == "password" || password == "123456")
-            {
-                return true;
-            }
-
-            return false;
+            return password is "password" or "123456";
         }
 
-        string[] parts = passwordHash.Split('$');
-        if (parts.Length != 4)
+        var parts = passwordHash.Split('$');
+        if (parts.Length != 4 || parts[0] != "PBKDF2")
         {
             return false;
         }
 
-        if (parts[0] != "PBKDF2")
-        {
-            return false;
-        }
-
-        int iterations;
-        if (!int.TryParse(parts[1], out iterations))
+        if (!int.TryParse(parts[1], out var iterations))
         {
             return false;
         }
 
         try
         {
-            byte[] salt = Convert.FromBase64String(parts[2]);
-            byte[] expectedHash = Convert.FromBase64String(parts[3]);
-            byte[] actualHash = Rfc2898DeriveBytes.Pbkdf2(
+            var salt = Convert.FromBase64String(parts[2]);
+            var expectedHash = Convert.FromBase64String(parts[3]);
+            var actualHash = Rfc2898DeriveBytes.Pbkdf2(
                 password,
                 salt,
                 iterations,
