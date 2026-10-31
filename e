@@ -1,0 +1,22 @@
+[1mdiff --git a/Backend/TaskFlow.Infrastructure/Auth/PasswordHasher.cs b/Backend/TaskFlow.Infrastructure/Auth/PasswordHasher.cs[m
+[1mindex dbaa78e..92ffc2b 100644[m
+[1m--- a/Backend/TaskFlow.Infrastructure/Auth/PasswordHasher.cs[m
+[1m+++ b/Backend/TaskFlow.Infrastructure/Auth/PasswordHasher.cs[m
+[36m@@ -44,3 +44,16 @@[m [mpublic static class PasswordHasherExtensions[m
+         return CryptographicOperations.FixedTimeEquals(computedHash, hash);[m
+     }[m
+ }[m
+[32m+[m[32mprivate static async Task<int> GetMemberRoleIdAsync(CancellationToken cancellationToken)[m
+[32m+[m[32m{[m
+[32m+[m[32m    var memberRole = await dbContext.Roles[m
+[32m+[m[32m        .AsNoTracking()[m
+[32m+[m[32m        .SingleOrDefaultAsync(r => r.Name == "Member", cancellationToken);[m
+[32m+[m
+[32m+[m[32m    if (memberRole is null)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        throw new InvalidOperationException("Member role not found in the database.");[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    return memberRole.Id;[m
+[32m+[m[32m}[m
+\ No newline at end of file[m

@@ -44,3 +44,16 @@ public static class PasswordHasherExtensions
         return CryptographicOperations.FixedTimeEquals(computedHash, hash);
     }
 }
+private static async Task<int> GetMemberRoleIdAsync(CancellationToken cancellationToken)
+{
+    var memberRole = await dbContext.Roles
+        .AsNoTracking()
+        .SingleOrDefaultAsync(r => r.Name == "Member", cancellationToken);
+
+    if (memberRole is null)
+    {
+        throw new InvalidOperationException("Member role not found in the database.");
+    }
+
+    return memberRole.Id;
+}
