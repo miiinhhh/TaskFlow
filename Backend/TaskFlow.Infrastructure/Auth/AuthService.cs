@@ -114,3 +114,37 @@ private static class PasswordVerifier
         return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
     }
 }
+public static class JwtTokenGenerator
+{
+    public static string CreateToken(AuthUserResponse user, DateTime expiresAt, IConfiguration configuration)
+    {
+        var secret = configuration["Jwt:Secret"]
+            ?? throw new InvalidOperationException("Jwt:Secret is not configured.");
+        var issuer = configuration["Jwt:Issuer"]
+            ?? throw new InvalidOperationException("Jwt:Issuer is not configured.");
+        var audience = configuration["Jwt:Audience"]
+            ?? throw new InvalidOperationException("Jwt:Audience is not configured.");
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim("fullName", user.FullName),
+            new Claim("roleId", user.RoleId.ToString()),
+            new Claim("roleName", user.RoleName ?? string.Empty)
+        };
+
+        var token = new JwtSecurityToken(
+            issuer,
+            audience,
+            claims,
+            expires: expiresAt,
+            signingCredentials: creds);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+}
