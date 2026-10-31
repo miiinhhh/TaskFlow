@@ -1,0 +1,64 @@
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/remotes/origin/Tuan@{Sat Oct 31 08:30:23 2026}: update by push
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/heads/Tuan@{Sat Oct 31 08:27:50 2026}: reset: moving to origin/main
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Sat Oct 31 08:27:50 2026}: reset: moving to origin/main
+[33m7b53619[m refs/remotes/origin/Tuan@{Sat Oct 31 08:27:30 2026}: update by push
+[33m7b53619[m refs/heads/Tuan@{Sat Oct 31 08:27:24 2026}: commit: Kiem thu
+[33m7b53619[m HEAD@{Sat Oct 31 08:27:24 2026}: commit: Kiem thu
+[33mc798c69[m refs/remotes/origin/Tuan@{Sat Oct 31 08:26:43 2026}: update by push
+[33mc798c69[m refs/heads/Tuan@{Sat Oct 31 08:26:37 2026}: commit: Tạo JWT token sau khi người dùng đăng nhập thành công
+[33mc798c69[m HEAD@{Sat Oct 31 08:26:37 2026}: commit: Tạo JWT token sau khi người dùng đăng nhập thành công
+[33mf698853[m refs/remotes/origin/Tuan@{Sat Oct 31 08:25:10 2026}: update by push
+[33mf698853[m refs/heads/Tuan@{Sat Oct 31 08:25:02 2026}: commit: iểm tra mật khẩu người dùng nhập có khớp với mật khẩu đã băm trong database
+[33mf698853[m HEAD@{Sat Oct 31 08:25:02 2026}: commit: iểm tra mật khẩu người dùng nhập có khớp với mật khẩu đã băm trong database
+[33mef23398[m refs/remotes/origin/Tuan@{Sat Oct 31 08:23:44 2026}: update by push
+[33mef23398[m refs/heads/Tuan@{Sat Oct 31 08:23:42 2026}: rebase (finish): refs/heads/Tuan onto 2318a8576299357f493676df22651111863bb722
+[33mbfcacdd[m[33m ([m[1;31morigin/Thuan[m[33m)[m refs/remotes/origin/Thuan@{Sat Oct 31 08:23:42 2026}: fetch origin: fast-forward
+[33mb9ed532[m[33m ([m[1;31morigin/Viet[m[33m)[m refs/remotes/origin/Viet@{Sat Oct 31 08:23:42 2026}: fetch origin: fast-forward
+[33mef23398[m HEAD@{Sat Oct 31 08:23:42 2026}: rebase (finish): returning to refs/heads/Tuan
+[33mef23398[m HEAD@{Sat Oct 31 08:23:42 2026}: rebase (pick): băm mật khẩu trước khi lưu vào database
+[33m2318a85[m HEAD@{Sat Oct 31 08:23:42 2026}: rebase (start): checkout origin/Tuan
+[33mae49ed3[m refs/heads/Tuan@{Sat Oct 31 08:22:30 2026}: commit: băm mật khẩu trước khi lưu vào database
+[33mae49ed3[m HEAD@{Sat Oct 31 08:22:30 2026}: commit: băm mật khẩu trước khi lưu vào database
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Sat Oct 31 08:21:14 2026}: reset: moving to origin/main
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/heads/Tuan@{Sat Oct 24 23:36:29 2026}: reset: moving to origin/main
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Sat Oct 24 23:36:29 2026}: reset: moving to origin/main
+[33m2318a85[m refs/remotes/origin/Tuan@{Sat Oct 24 23:36:09 2026}: update by push
+[33m2318a85[m refs/heads/Tuan@{Sat Oct 24 23:36:00 2026}: commit: Cập nhật code
+[33m2318a85[m HEAD@{Sat Oct 24 23:36:00 2026}: commit: Cập nhật code
+[33m937a05d[m refs/remotes/origin/Tuan@{Sat Oct 24 23:35:09 2026}: update by push
+[33m937a05d[m refs/heads/Tuan@{Sat Oct 24 23:35:06 2026}: pull --rebase origin Tuan (finish): refs/heads/Tuan onto 9a637dacdd969c70384193558a0bb6beaaf37fa3
+[33m937a05d[m HEAD@{Sat Oct 24 23:35:06 2026}: pull --rebase origin Tuan (finish): returning to refs/heads/Tuan
+[33m937a05d[m HEAD@{Sat Oct 24 23:35:06 2026}: pull --rebase origin Tuan (pick): Cập nhật code
+[33m1906afa[m HEAD@{Sat Oct 24 23:35:06 2026}: pull --rebase origin Tuan (pick): Cập nhật code
+[33m9a637da[m HEAD@{Sat Oct 24 23:35:06 2026}: pull --rebase origin Tuan (start): checkout 9a637dacdd969c70384193558a0bb6beaaf37fa3
+[33m66708cf[m refs/heads/Tuan@{Sat Oct 24 23:34:10 2026}: commit: Cập nhật code
+[33m66708cf[m HEAD@{Sat Oct 24 23:34:10 2026}: commit: Cập nhật code
+[33me8d81fb[m refs/heads/Tuan@{Sat Oct 24 23:31:05 2026}: commit: Cập nhật code
+[33me8d81fb[m HEAD@{Sat Oct 24 23:31:05 2026}: commit: Cập nhật code
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/heads/Tuan@{Sat Oct 24 23:21:44 2026}: reset: moving to origin/main
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Sat Oct 24 23:21:44 2026}: reset: moving to origin/main
+[33m056ca61[m refs/remotes/origin/Thuan@{Sat Oct 24 23:21:05 2026}: fetch origin: storing head
+[33mad6f2a8[m refs/remotes/origin/Viet@{Sat Oct 24 23:21:05 2026}: fetch origin: fast-forward
+[33m9a637da[m refs/remotes/origin/Tuan@{Sat Oct 24 23:19:57 2026}: update by push
+[33m9a637da[m refs/heads/Tuan@{Sat Oct 24 23:19:51 2026}: commit: Cập nhật code
+[33m9a637da[m HEAD@{Sat Oct 24 23:19:51 2026}: commit: Cập nhật code
+[33m332c839[m refs/heads/Tuan@{Sat Oct 24 23:17:47 2026}: pull --ff-only origin Tuan: Fast-forward
+[33m332c839[m HEAD@{Sat Oct 24 23:17:47 2026}: pull --ff-only origin Tuan: Fast-forward
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/heads/Tuan@{Sat Oct 24 23:15:35 2026}: reset: moving to origin/main
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Sat Oct 24 23:15:35 2026}: reset: moving to origin/main
+[33m332c839[m refs/remotes/origin/Tuan@{Sat Oct 24 23:15:28 2026}: update by push
+[33m332c839[m refs/heads/Tuan@{Sat Oct 24 23:15:17 2026}: commit: Cấu hình Core
+[33m332c839[m HEAD@{Sat Oct 24 23:15:17 2026}: commit: Cấu hình Core
+[33m633d9e1[m refs/remotes/origin/Tuan@{Sat Oct 24 23:03:54 2026}: update by push
+[33m633d9e1[m refs/heads/Tuan@{Sat Oct 24 23:03:46 2026}: pull --rebase origin Tuan (finish): refs/heads/Tuan onto 26dec7701f487cfc706a85560fea6415a3067178
+[33m633d9e1[m HEAD@{Sat Oct 24 23:03:46 2026}: pull --rebase origin Tuan (finish): returning to refs/heads/Tuan
+[33m633d9e1[m HEAD@{Sat Oct 24 23:03:46 2026}: pull --rebase origin Tuan (pick): đăng ký routeRouteParmaterVation
+[33m26dec77[m HEAD@{Sat Oct 24 23:03:46 2026}: pull --rebase origin Tuan (start): checkout 26dec7701f487cfc706a85560fea6415a3067178
+[33mfb6ca38[m refs/heads/Tuan@{Sat Oct 24 23:03:24 2026}: commit: đăng ký routeRouteParmaterVation
+[33mfb6ca38[m HEAD@{Sat Oct 24 23:03:24 2026}: commit: đăng ký routeRouteParmaterVation
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/heads/Tuan@{Sat Oct 24 22:58:52 2026}: reset: moving to origin/main
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{Sat Oct 24 22:58:52 2026}: reset: moving to origin/main
+[33md6a7560[m refs/heads/Tuan@{Sat Oct 24 22:57:05 2026}: commit: đăng ký routeRouteParmaterVation
+[33md6a7560[m HEAD@{Sat Oct 24 22:57:05 2026}: commit: đăng ký routeRouteParmaterVation
+[33m89613f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mTuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Tuan[m[33m, [m[1;31morigin/HEAD[m[33m)[m refs/heads/Tuan@{Sat Oct 24 09:01:07 2026}: reset: moving to origin/main
+[

@@ -100,3 +100,10 @@ public sealed class AuthService(TaskFlowDbContext dbContext, IConfiguration conf
             ?? throw new InvalidOperationException("The Member role is not configured.");
     }
 }
+private static class PasswordHasher
+{
+    public static string Hash(string password)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password);
+    }
+}
