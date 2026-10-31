@@ -107,3 +107,10 @@ private static class PasswordHasher
         return BCrypt.Net.BCrypt.HashPassword(password);
     }
 }
+private static class PasswordVerifier
+{
+    public static bool Verify(string password, string hashedPassword)
+    {
+        return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+    }
+}
