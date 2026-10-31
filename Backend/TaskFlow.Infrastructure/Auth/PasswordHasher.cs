@@ -21,39 +21,3 @@ internal static class PasswordHasher
         return $"PBKDF2${Iterations}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hash)}";
     }
 }
-
-public static class PasswordHasherExtensions
-{
-    public static bool Verify(this string hashedPassword, string password)
-    {
-        var parts = hashedPassword.Split('$');
-        if (parts.Length != 4 || parts[0] != "PBKDF2")
-            throw new FormatException("Invalid hashed password format.");
-
-        var iterations = int.Parse(parts[1]);
-        var salt = Convert.FromBase64String(parts[2]);
-        var hash = Convert.FromBase64String(parts[3]);
-
-        var computedHash = Rfc2898DeriveBytes.Pbkdf2(
-            password,
-            salt,
-            iterations,
-            HashAlgorithmName.SHA256,
-            hash.Length);
-
-        return CryptographicOperations.FixedTimeEquals(computedHash, hash);
-    }
-}
-private static async Task<int> GetMemberRoleIdAsync(CancellationToken cancellationToken)
-{
-    var memberRole = await dbContext.Roles
-        .AsNoTracking()
-        .SingleOrDefaultAsync(r => r.Name == "Member", cancellationToken);
-
-    if (memberRole is null)
-    {
-        throw new InvalidOperationException("Member role not found in the database.");
-    }
-
-    return memberRole.Id;
-}
