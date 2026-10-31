@@ -11,7 +11,7 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     [HttpPost]
     public async Task<ActionResult<PriorityResponse>> Create(CreatePriorityRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
+        if (!HasValidName(request.Name))
         {
             return BadRequest("Name is required.");
         }
@@ -30,25 +30,48 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     public async Task<ActionResult<PriorityResponse>> GetById(int id, CancellationToken cancellationToken)
     {
         var priority = await priorityService.GetByIdAsync(id, cancellationToken);
-        return priority is null ? NotFound() : Ok(priority);
+
+        if (priority is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(priority);
     }
 
     [HttpPut("{id:int}")]
     public async Task<ActionResult<PriorityResponse>> Update(int id, UpdatePriorityRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
+        if (!HasValidName(request.Name))
         {
             return BadRequest("Name is required.");
         }
 
         var priority = await priorityService.UpdateAsync(id, request, cancellationToken);
-        return priority is null ? NotFound() : Ok(priority);
+
+        if (priority is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(priority);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await priorityService.DeleteAsync(id, cancellationToken);
-        return deleted ? NoContent() : NotFound();
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    private static bool HasValidName(string? name)
+    {
+        return !string.IsNullOrWhiteSpace(name);
     }
 }

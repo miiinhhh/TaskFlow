@@ -11,7 +11,7 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
     [HttpPost]
     public async Task<ActionResult<StatusResponse>> Create(CreateStatusRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
+        if (!HasValidName(request.Name))
         {
             return BadRequest("Name is required.");
         }
@@ -30,25 +30,48 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
     public async Task<ActionResult<StatusResponse>> GetById(int id, CancellationToken cancellationToken)
     {
         var status = await statusService.GetByIdAsync(id, cancellationToken);
-        return status is null ? NotFound() : Ok(status);
+
+        if (status is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(status);
     }
 
     [HttpPut("{id:int}")]
     public async Task<ActionResult<StatusResponse>> Update(int id, UpdateStatusRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
+        if (!HasValidName(request.Name))
         {
             return BadRequest("Name is required.");
         }
 
         var status = await statusService.UpdateAsync(id, request, cancellationToken);
-        return status is null ? NotFound() : Ok(status);
+
+        if (status is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(status);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await statusService.DeleteAsync(id, cancellationToken);
-        return deleted ? NoContent() : NotFound();
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    private static bool HasValidName(string? name)
+    {
+        return !string.IsNullOrWhiteSpace(name);
     }
 }
