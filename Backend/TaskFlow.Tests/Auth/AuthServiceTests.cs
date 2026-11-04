@@ -78,3 +78,11 @@ public sealed class AuthServiceTests
             .Build();
     }
 }
+public static class PasswordHasher
+{
+    public static string Hash(string password)
+    {
+        // Simple hash for testing purposes; in production, use a secure hashing algorithm.
+        return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
+    }
+}
