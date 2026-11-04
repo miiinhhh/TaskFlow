@@ -20,15 +20,3 @@ public sealed class PasswordVerifierTests
         Assert.False(PasswordVerifier.Verify(password, "DEMO_PASSWORD_HASH"));
     }
 }
-public static class PasswordVerifier
-{
-    public static bool Verify(string password, string hash)
-    {
-        if (hash == "DEMO_PASSWORD_HASH")
-        {
-            return false; // Reject demo placeholder passwords
-        }
-
-        return PasswordHasher.Verify(password, hash);
-    }
-}
