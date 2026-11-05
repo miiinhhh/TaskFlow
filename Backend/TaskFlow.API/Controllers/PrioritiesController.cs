@@ -16,6 +16,11 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PriorityResponse>> Create(CreatePriorityRequest request, CancellationToken cancellationToken)
     {
+        if (!HasValidName(request.Name))
+        {
+            return BadRequest("Name is required.");
+        }
+
         try
         {
             var priority = await priorityService.CreateAsync(request, cancellationToken);
@@ -37,13 +42,24 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
     public async Task<ActionResult<PriorityResponse>> GetById(int id, CancellationToken cancellationToken)
     {
         var priority = await priorityService.GetByIdAsync(id, cancellationToken);
-        return priority is null ? NotFound() : Ok(priority);
+
+        if (priority is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(priority);
     }
 
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PriorityResponse>> Update(int id, UpdatePriorityRequest request, CancellationToken cancellationToken)
     {
+        if (!HasValidName(request.Name))
+        {
+            return BadRequest("Name is required.");
+        }
+
         try
         {
             var priority = await priorityService.UpdateAsync(id, request, cancellationToken);
@@ -68,5 +84,10 @@ public sealed class PrioritiesController(IPriorityService priorityService) : Con
         {
             throw new ConflictException("Priority is being used by tasks.");
         }
+    }
+
+    private static bool HasValidName(string? name)
+    {
+        return !string.IsNullOrWhiteSpace(name);
     }
 }

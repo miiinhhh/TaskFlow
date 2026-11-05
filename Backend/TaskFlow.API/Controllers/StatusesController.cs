@@ -16,7 +16,7 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<StatusResponse>> Create(CreateStatusRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
+        if (!HasValidName(request.Name))
         {
             return BadRequest("Name is required.");
         }
@@ -42,14 +42,20 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
     public async Task<ActionResult<StatusResponse>> GetById(int id, CancellationToken cancellationToken)
     {
         var status = await statusService.GetByIdAsync(id, cancellationToken);
-        return status is null ? NotFound() : Ok(status);
+
+        if (status is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(status);
     }
 
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<StatusResponse>> Update(int id, UpdateStatusRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
+        if (!HasValidName(request.Name))
         {
             return BadRequest("Name is required.");
         }
@@ -78,5 +84,10 @@ public sealed class StatusesController(IStatusService statusService) : Controlle
         {
             throw new ConflictException("Status is being used by tasks.");
         }
+    }
+
+    private static bool HasValidName(string? name)
+    {
+        return !string.IsNullOrWhiteSpace(name);
     }
 }
