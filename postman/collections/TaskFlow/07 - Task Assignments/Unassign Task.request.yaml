@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:5284/api/tasks/1/assignment
+method: DELETE
+order: 2000

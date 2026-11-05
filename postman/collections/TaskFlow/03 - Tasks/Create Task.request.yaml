@@ -1,0 +1,29 @@
+$kind: http-request
+url: http://localhost:5284/api/tasks
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"projectId\": 1,\r
+
+    \  \"createdById\": 1,\r
+
+    \  \"statusId\": 1,\r
+
+    \  \"priorityId\": 2,\r
+
+    \  \"title\": \"Thiết kế giao diện đăng nhập\",\r
+
+    \  \"description\": \"Xây dựng giao diện đăng nhập cho hệ thống\",\r
+
+    \  \"startDate\": \"2026-10-24T00:00:00\",\r
+
+    \  \"dueDate\": \"2026-10-30T00:00:00\",\r
+
+    \  \"estimatedHours\": 8,\r
+
+    \  \"actualHours\": 0\r
+
+    }"
+order: 4000

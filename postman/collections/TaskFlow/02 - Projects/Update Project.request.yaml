@@ -1,0 +1,19 @@
+$kind: http-request
+url: http://localhost:5284/api/projects/1
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"Website quản lý công việc\",\r
+
+    \  \"description\": \"Cập nhật thông tin dự án\",\r
+
+    \  \"startDate\": \"2026-10-24T00:00:00\",\r
+
+    \  \"endDate\": \"2026-12-31T00:00:00\",\r
+
+    \  \"isArchived\": false\r
+
+    }"
+order: 5000

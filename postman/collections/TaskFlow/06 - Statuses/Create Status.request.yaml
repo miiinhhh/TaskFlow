@@ -1,0 +1,17 @@
+$kind: http-request
+url: http://localhost:5284/api/statuses/1
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"In Progress\",\r
+
+    \  \"description\": \"Công việc đang được thực hiện\",\r
+
+    \  \"displayOrder\": 2,\r
+
+    \  \"isCompleted\": false\r
+
+    }"
+order: 3000

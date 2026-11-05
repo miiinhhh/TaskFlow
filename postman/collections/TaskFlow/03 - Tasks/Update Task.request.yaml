@@ -1,0 +1,29 @@
+$kind: http-request
+url: http://localhost:5284/api/tasks/1
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"projectId\": 1,\r
+
+    \  \"statusId\": 2,\r
+
+    \  \"priorityId\": 3,\r
+
+    \  \"title\": \"Hoàn thiện giao diện đăng nhập\",\r
+
+    \  \"description\": \"Bổ sung kiểm tra dữ liệu đầu vào\",\r
+
+    \  \"startDate\": \"2026-10-24T00:00:00\",\r
+
+    \  \"dueDate\": \"2026-10-30T00:00:00\",\r
+
+    \  \"estimatedHours\": 10,\r
+
+    \  \"actualHours\": 2,\r
+
+    \  \"completedAt\": null\r
+
+    }"
+order: 5000

@@ -1,0 +1,19 @@
+$kind: http-request
+url: http://localhost:5284/api/tasks/1/histories
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"taskId\": 1,\r
+
+    \  \"userId\": 1,\r
+
+    \  \"action\": \"UpdateStatus\",\r
+
+    \  \"oldValue\": \"To Do\",\r
+
+    \  \"newValue\": \"In Progress\"\r
+
+    }"
+order: 1000
