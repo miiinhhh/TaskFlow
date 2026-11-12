@@ -1,5 +1,0 @@
-CREATE DATABASE TaskFlowDb;
-GO
-
-USE TaskFlowDb;
-GO
