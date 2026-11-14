@@ -1,0 +1,105 @@
+3. PaymentGatewayResolver — phần B
+public interface IPaymentGateway
+{
+    string TenPhuongThuc { get; }
+}
+
+public sealed class MoMoGateway : IPaymentGateway
+{
+    public string TenPhuongThuc => "MoMo";
+}
+
+public sealed class VnPayGateway : IPaymentGateway
+{
+    public string TenPhuongThuc => "VnPay";
+}
+
+public sealed class PaymentGatewayResolver
+{
+    private readonly IEnumerable<IPaymentGateway> _gateways;
+
+    public PaymentGatewayResolver(IEnumerable<IPaymentGateway> gateways)
+    {
+        _gateways = gateways;
+    }
+
+    public IPaymentGateway Resolve(string name)
+    {
+        return _gateways.FirstOrDefault(gateway =>
+                   string.Equals(
+                       gateway.TenPhuongThuc,
+                       name,
+                       StringComparison.OrdinalIgnoreCase))
+               ?? throw new DomainException(
+                   "Phương thức thanh toán này chưa được tích hợp.");
+    }
+}
+
+
+1. ExceptionHandlingMiddleware — TODO 1
+public sealed class DomainException : Exception
+{
+    public DomainException(string message) : base(message) { }
+}
+
+public sealed class ExceptionHandlingMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+
+    public ExceptionHandlingMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionHandlingMiddleware> logger)
+    {
+        _next = next;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch (Exception ex)
+        {
+            string traceId = context.TraceIdentifier;
+            _logger.LogError(ex, "Lỗi xử lý request. TraceId={TraceId}", traceId);
+
+            // Response đã gửi một phần thì không thể thay bằng JSON lỗi.
+            if (context.Response.HasStarted)
+                throw;
+
+            var (statusCode, message) = ex switch
+            {
+                DomainException domain => (400, domain.Message),
+                ArgumentException => (400, "Dữ liệu không hợp lệ."),
+                KeyNotFoundException => (404, "Không tìm thấy tài nguyên."),
+                UnauthorizedAccessException =>
+                    (403, "Bạn không có quyền thực hiện thao tác này."),
+                _ => (500, "Đã xảy ra lỗi hệ thống.")
+            };
+
+            context.Response.Clear();
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsJsonAsync(new
+            {
+                statusCode,
+                message,
+                traceId
+            });
+        }
+    }
+}
+
+2. Đăng ký middleware — TODO 2
+Đặt trước các MapGet:
+var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// Sau dòng này mới khai báo các endpoint.
+app.MapGet("/api/lab-errors/bad-request",
+    () => { throw new ArgumentException("Invalid input"); });

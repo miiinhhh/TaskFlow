@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure.Persistence;
+//codex.cmd --sandbox workspace-write --ask-for-approval never
 
 public sealed class TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> options) : DbContext(options)
 {
